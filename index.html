@@ -3,253 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Premium To-Do</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        /* [CSS: ใช้ตัวเดิมแต่เพิ่มสไตล์สำหรับ Filter และ Transition] */
-        :root {
-            --bg: #fdfbfb;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --text: #4a5568;
-            --accent: #b8c0ff;
-            --accent-hover: #a2a8ed;
-            --danger: #ffb7b2;
-            --border: #edf2f7;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        body.dark-mode {
-            --bg: #1a202c;
-            --card-bg: rgba(45, 55, 72, 0.9);
-            --text: #e2e8f0;
-            --accent: #9f7aea;
-            --accent-hover: #b794f4;
-            --danger: #f56565;
-            --border: #2d3748;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            padding-top: 80px;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .theme-switch {
-            position: fixed; top: 25px; right: 25px; cursor: pointer;
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 10px; border-radius: 50%; width: 45px; height: 45px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: var(--shadow); font-size: 1.2rem; z-index: 10;
-        }
-
-        .container {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            width: 90%; max-width: 450px; padding: 2.5rem;
-            border-radius: 24px; box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-
-        h2 { text-align: center; margin-bottom: 2rem; font-weight: 600; }
-
-        .input-group { display: flex; gap: 12px; margin-bottom: 2rem; }
-        input {
-            flex: 1; padding: 14px 20px; border: 2px solid var(--border);
-            border-radius: 15px; outline: none; background: transparent;
-            color: var(--text); font-family: inherit;
-        }
-        input:focus { border-color: var(--accent); }
-        button#add-btn {
-            padding: 0 25px; background: var(--accent); color: white;
-            border: none; border-radius: 15px; cursor: pointer;
-            font-weight: 600; box-shadow: 0 4px 15px rgba(184, 192, 255, 0.4);
-        }
-
-        ul { list-style: none; padding: 0; margin-bottom: 2rem; }
-        li {
-            display: flex; align-items: center; padding: 14px;
-            margin-bottom: 10px; background: var(--bg);
-            border-radius: 15px; gap: 12px; border: 1px solid var(--border);
-            animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } }
-
-        .todo-text { flex: 1; cursor: pointer; font-size: 0.95rem; }
-        .completed { text-decoration: line-through; opacity: 0.5; }
-        .toggle-check { width: 20px; height: 20px; accent-color: var(--accent); cursor: pointer; }
-        .del-btn { color: var(--text); background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.4; }
-        .del-btn:hover { color: var(--danger); opacity: 1; }
-
-        /* [Filter UI: ดีไซน์แบบ Pill-shaped] */
-        .filter-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-        }
-        .filter-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 6px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-family: inherit;
-            opacity: 0.6;
-        }
-        .filter-btn.active {
-            background: var(--accent);
-            color: white;
-            border-color: var(--accent);
-            opacity: 1;
-            box-shadow: 0 4px 10px rgba(184, 192, 255, 0.3);
-        }
-    </style>
+    <title>My Sync To-Do</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center p-6">
 
-    <div class="theme-switch" id="theme-toggle">🌓</div>
-
-    <div class="container">
-        <h2>My Tasks</h2>
-        <div class="input-group">
-            <input type="text" id="todo-input" placeholder="เพิ่มสิ่งที่ต้องทำ...">
-            <button id="add-btn">เพิ่ม</button>
-        </div>
-        
-        <ul id="todo-list"></ul>
-
-        <div class="filter-group">
-            <button class="filter-btn active" onclick="setFilter('all', this)">ทั้งหมด</button>
-            <button class="filter-btn" onclick="setFilter('active', this)">ยังไม่ทำ</button>
-            <button class="filter-btn" onclick="setFilter('completed', this)">เสร็จแล้ว</button>
+    <div id="auth-section" class="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-2xl text-center mb-6">
+        <h1 class="text-3xl font-bold mb-6">My Tasks</h1>
+        <button id="login-btn" class="bg-white text-slate-900 px-6 py-3 rounded-full font-bold flex items-center justify-center w-full hover:bg-slate-200 transition">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6 mr-2">
+            เข้าสู่ระบบด้วย Google
+        </button>
+        <div id="user-info" class="hidden">
+            <p class="mb-4 text-slate-400">ยินดีต้อนรับ, <span id="user-name" class="text-white font-bold"></span></p>
+            <button id="logout-btn" class="text-sm text-red-400 hover:underline">ออกจากระบบ</button>
         </div>
     </div>
 
-    <script>
-        const input = document.getElementById('todo-input');
-        const addBtn = document.getElementById('add-btn');
+    <div id="todo-section" class="w-full max-w-md bg-slate-800 p-6 rounded-2xl shadow-2xl hidden">
+        <div class="flex gap-2 mb-6">
+            <input type="text" id="todo-input" placeholder="เพิ่มสิ่งที่ต้องทำ..." class="flex-1 bg-slate-700 border-none rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 outline-none">
+            <button id="add-btn" class="bg-purple-600 hover:bg-purple-500 px-6 py-3 rounded-xl font-bold transition">เพิ่ม</button>
+        </div>
+        <ul id="todo-list" class="space-y-3"></ul>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 1. แปะ firebaseConfig ที่เพื่อนก๊อปมาวางตรงนี้ (Replace this)
+        const firebaseConfig = {
+    apiKey: "AIzaSyC_JN8AL9L0M0eulfbf8cXHvcZT0q0-Cug",
+    authDomain: "my-todo-app-d6eb1.firebaseapp.com",
+    projectId: "my-todo-app-d6eb1",
+    storageBucket: "my-todo-app-d6eb1.firebasestorage.app",
+    messagingSenderId: "172806062786",
+    appId: "1:172806062786:web:efad1fef88a5ef2717f15b"
+  };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const userInfo = document.getElementById('user-info');
+        const todoSection = document.getElementById('todo-section');
         const todoList = document.getElementById('todo-list');
-        const themeToggle = document.getElementById('theme-toggle');
 
-        let todos = JSON.parse(localStorage.getItem('ultra-todo-tasks')) || [];
-        let isDarkMode = localStorage.getItem('ultra-todo-theme') === 'dark';
-        let currentFilter = 'all'; // [State สำหรับตัวกรอง: all, active, completed]
+        // Login / Logout Logic
+        loginBtn.onclick = () => signInWithPopup(auth, provider);
+        logoutBtn.onclick = () => signOut(auth);
 
-        /* [Sound System: สร้างเสียงสังเคราะห์ด้วย Web Audio API] */
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        const playSound = (type) => {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            if (type === 'complete') {
-                // เสียง "ติ๊ง" (High pitch)
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.2);
-            } else if (type === 'delete') {
-                // เสียง "ป๊อป" (Low pitch)
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + 0.1);
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginBtn.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                todoSection.classList.remove('hidden');
+                document.getElementById('user-name').innerText = user.displayName;
+                loadTodos(user.uid);
+            } else {
+                loginBtn.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                todoSection.classList.add('hidden');
+                todoList.innerHTML = '';
             }
-        };
-
-        // ฟังก์ชันจัดการธีม
-        const applyTheme = () => {
-            document.body.classList.toggle('dark-mode', isDarkMode);
-            localStorage.setItem('ultra-todo-theme', isDarkMode ? 'dark' : 'light');
-        };
-
-        themeToggle.addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
-            applyTheme();
         });
 
-        const saveToLocal = () => localStorage.setItem('ultra-todo-tasks', JSON.stringify(todos));
-
-        // [Filter Logic: ฟังก์ชันเปลี่ยนโหมดการกรอง]
-        window.setFilter = (filter, btn) => {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderTodos();
-        };
-
-        const renderTodos = () => {
-            todoList.innerHTML = '';
-            
-            // [Filter Process: กรองข้อมูลก่อน Render]
-            const filteredTodos = todos.filter(todo => {
-                if (currentFilter === 'active') return !todo.completed;
-                if (currentFilter === 'completed') return todo.completed;
-                return true;
+        // Sync Data Logic
+        async function loadTodos(uid) {
+            const q = query(collection(db, "todos"), where("uid", "==", uid));
+            onSnapshot(q, (snapshot) => {
+                todoList.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const li = document.createElement('li');
+                    li.className = "bg-slate-700 p-4 rounded-xl flex justify-between items-center animate-fade-in";
+                    li.innerHTML = `
+                        <span class="${data.done ? 'line-through text-slate-500' : ''}">${data.text}</span>
+                        <div class="flex gap-2">
+                            <button onclick="toggleDone('${doc.id}', ${data.done})" class="text-green-400"><i class="fas fa-check"></i></button>
+                            <button onclick="deleteTodo('${doc.id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    todoList.appendChild(li);
+                });
             });
+        }
 
-            filteredTodos.forEach((todo) => {
-                // ค้นหา index จริงจาก Array หลักเพื่อให้ลบ/ติ๊กถูกได้ถูกต้อง
-                const realIndex = todos.indexOf(todo);
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <input type="checkbox" class="toggle-check" ${todo.completed ? 'checked' : ''} onchange="toggleTask(${realIndex})">
-                    <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
-                    <button class="del-btn" onclick="deleteTask(${realIndex})">&times;</button>
-                `;
-                todoList.appendChild(li);
-            });
+        window.addTodo = async () => {
+            const input = document.getElementById('todo-input');
+            if (input.value.trim() && auth.currentUser) {
+                await addDoc(collection(db, "todos"), {
+                    text: input.value,
+                    done: false,
+                    uid: auth.currentUser.uid,
+                    createdAt: Date.now()
+                });
+                input.value = '';
+            }
         };
+        document.getElementById('add-btn').onclick = window.addTodo;
 
-        const addTask = () => {
-            const text = input.value.trim();
-            if (!text) return;
-            todos.push({ text, completed: false });
-            saveToLocal();
-            renderTodos();
-            input.value = '';
-            input.focus();
-        };
-
-        window.toggleTask = (index) => {
-            todos[index].completed = !todos[index].completed;
-            playSound('complete'); // [Play Sound]
-            saveToLocal();
-            renderTodos();
-        };
-
-        window.deleteTask = (index) => {
-            todos.splice(index, 1);
-            playSound('delete'); // [Play Sound]
-            saveToLocal();
-            renderTodos();
-        };
-
-        addBtn.addEventListener('click', addTask);
-        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
-
-        applyTheme();
-        renderTodos();
+        window.toggleDone = (id, currentStatus) => updateDoc(doc(db, "todos", id), { done: !currentStatus });
+        window.deleteTodo = (id) => deleteDoc(doc(db, "todos", id));
     </script>
 </body>
 </html>
