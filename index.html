@@ -41,7 +41,19 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+// --- ส่วนป้องกันการเปิดในแอป (Anti-In-App Browser) ---
+if (navigator.userAgent.includes('Line') || /FBAN|FBAV/i.test(navigator.userAgent)) {
+    const isLine = navigator.userAgent.includes('Line');
+    if (isLine && !window.location.search.includes('openExternalBrowser=1')) {
+        window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'openExternalBrowser=1';
+    } else {
+        document.body.insertAdjacentHTML('afterbegin', `
+            <div style="background: #ff4444; color: white; text-align: center; padding: 10px; font-size: 14px; position: sticky; top: 0; z-index: 9999;">
+                ⚠️ เพื่อให้ Login ได้ กรุณากดปุ่ม <b style="font-size:18px">⋮</b> หรือ <b style="font-size:18px">...</b> แล้วเลือก "เปิดด้วยเบราว์เซอร์อื่น" [Open in Browser]
+            </div>
+        `);
+    }
+// --- จบส่วนป้องกัน ---
         const firebaseConfig = {
   apiKey: "AIzaSyC_JN8AL9L0M0eulfbf8cXHvcZT0q0-Cug",
   authDomain: "my-todo-app-d6eb1.firebaseapp.com",
