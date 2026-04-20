@@ -3,225 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Premium To-Do</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>My Tasks - Team Admin Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --bg: #fdfbfb;
-            --card-bg: rgba(255, 255, 255, 0.8);
-            --text: #4a5568;
-            --accent: #b8c0ff;
-            --accent-hover: #a2a8ed;
-            --danger: #ffb7b2;
-            --border: #edf2f7;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-        body.dark-mode {
-            --bg: #1a202c;
-            --card-bg: rgba(45, 55, 72, 0.9);
-            --text: #e2e8f0;
-            --accent: #9f7aea;
-            --accent-hover: #b794f4;
-            --danger: #f56565;
-            --border: #2d3748;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        * { box-sizing: border-box; transition: all 0.3s ease; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            padding-top: 80px;
-            margin: 0;
-            min-height: 100vh;
-        }
-        .theme-switch {
-            position: fixed; top: 25px; right: 25px; cursor: pointer;
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 10px; border-radius: 50%; width: 45px; height: 45px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: var(--shadow); font-size: 1.2rem; z-index: 10;
-        }
-        .container {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            width: 90%; max-width: 450px; padding: 2.5rem;
-            border-radius: 24px; box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-        }
-        h2 { text-align: center; margin-bottom: 1.5rem; font-weight: 600; }
-        .input-group { display: flex; gap: 12px; margin-bottom: 2rem; }
-        input {
-            flex: 1; padding: 14px 20px; border: 2px solid var(--border);
-            border-radius: 15px; outline: none; background: transparent;
-            color: var(--text); font-family: inherit;
-        }
-        input:focus { border-color: var(--accent); }
-        button#add-btn {
-            padding: 0 25px; background: var(--accent); color: white;
-            border: none; border-radius: 15px; cursor: pointer;
-            font-weight: 600; box-shadow: 0 4px 15px rgba(184, 192, 255, 0.4);
-        }
-        ul { list-style: none; padding: 0; margin-bottom: 2rem; }
-        li {
-            display: flex; align-items: center; padding: 14px;
-            margin-bottom: 10px; background: var(--bg);
-            border-radius: 15px; gap: 12px; border: 1px solid var(--border);
-        }
-        .todo-text { flex: 1; cursor: pointer; font-size: 0.95rem; }
-        .completed { text-decoration: line-through; opacity: 0.5; }
-        .del-btn { color: var(--text); background: none; border: none; cursor: pointer; font-size: 1.2rem; opacity: 0.4; }
-        .filter-group { display: flex; justify-content: center; gap: 10px; border-top: 1px solid var(--border); padding-top: 1.5rem; }
-        .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 15px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; opacity: 0.6; }
-        .filter-btn.active { background: var(--accent); color: white; opacity: 1; }
-        #auth-section { text-align: center; margin-bottom: 20px; }
-        #login-btn { padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; background: white; font-family: inherit; font-size: 0.8rem; }
+        body { background-color: #1a1c2c; color: white; font-family: sans-serif; }
+        .card { background-color: #2a2d3e; border-radius: 20px; padding: 40px; width: 350px; }
+        input[type="text"] { background: transparent; border-bottom: 1px solid #444; width: 100%; padding: 10px; color: white; outline: none; }
+        .btn-add { background-color: #a388ee; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .todo-list li { display: flex; align-items: center; background: #35394f; margin-bottom: 10px; padding: 15px; border-radius: 12px; }
+        .delete-btn { color: #ff5e5e; font-size: 0.8em; margin-left: auto; cursor: pointer; border: 1px solid #ff5e5e; padding: 2px 8px; border-radius: 5px; }
+        .task-text { flex-grow: 1; }
+        .user-name { font-size: 0.7em; color: #aaa; margin-top: 2px; }
+        .line-through { text-decoration: line-through; color: #888; }
     </style>
 </head>
-<body>
-    <div class="theme-switch" id="theme-toggle">🌓</div>
-    <div class="container">
-        <h2>My Tasks</h2>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="card shadow-2xl">
+        <h1 class="text-3xl font-bold text-center mb-6">My Tasks</h1>
         
-        <div id="auth-section">
-            <button id="login-btn">Log in with Google</button>
-            <div id="user-info" style="display: none; font-size: 0.8rem;">
-                Hi, <span id="user-name"></span> | <a href="#" id="logout-link" style="color: var(--danger)">Logout</a>
-            </div>
+        <div id="auth-section" class="text-center mb-6">
+            <p id="user-info" class="mb-2 text-sm text-gray-400">Loading...</p>
+            <button id="loginBtn" class="btn-add hidden">Login with Google</button>
+            <button id="logoutBtn" class="hidden text-red-400 text-xs underline mt-2">Logout</button>
         </div>
 
-        <div class="input-group">
-            <input type="text" id="todo-input" placeholder="เพิ่มสิ่งที่ต้องทำ...">
-            <button id="add-btn">เพิ่ม</button>
-        </div>
-        <ul id="todo-list"></ul>
-        <div class="filter-group">
-            <button class="filter-btn active" id="filter-all">ทั้งหมด</button>
-            <button class="filter-btn" id="filter-active">ยังไม่ทำ</button>
-            <button class="filter-btn" id="filter-completed">เสร็จแล้ว</button>
+        <div id="todo-section" class="hidden">
+            <div class="flex gap-2 mb-6">
+                <input type="text" id="todoInput" placeholder="เพิ่มสิ่งที่ต้องทำ...">
+                <button id="addBtn" class="btn-add">เพิ่ม</button>
+            </div>
+            <ul id="todoList" class="todo-list"></ul>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
-    apiKey: "AIzaSyC_JN8AL9L0M0eulfbf8cXHvcZT0q0-Cug",
-    authDomain: "my-todo-app-d6eb1.firebaseapp.com",
-    projectId: "my-todo-app-d6eb1",
-    storageBucket: "my-todo-app-d6eb1.firebasestorage.app",
-    messagingSenderId: "172806062786",
-    appId: "1:172806062786:web:efad1fef88a5ef2717f15b"
-  };
+            apiKey: "AIzaSyB-jA...",
+            authDomain: "my-todo-app-d6eb1.firebaseapp.com",
+            projectId: "my-todo-app-d6eb1",
+            storageBucket: "my-todo-app-d6eb1.appspot.com",
+            messagingSenderId: "333830843468",
+            appId: "1:333830843468:web:1301988880529d20c56eb1"
+        };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        const input = document.getElementById('todo-input');
-        const addBtn = document.getElementById('add-btn');
-        const todoList = document.getElementById('todo-list');
-        const loginBtn = document.getElementById('login-btn');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
         const userInfo = document.getElementById('user-info');
-        const userNameDisp = document.getElementById('user-name');
-        const logoutLink = document.getElementById('logout-link');
+        const todoSection = document.getElementById('todo-section');
+        const todoInput = document.getElementById('todoInput');
+        const addBtn = document.getElementById('addBtn');
+        const todoList = document.getElementById('todoList');
 
         let currentUser = null;
-        let currentFilter = 'all';
 
-        // --- Auth Logic ---
         loginBtn.onclick = () => signInWithPopup(auth, provider);
-        logoutLink.onclick = (e) => { e.preventDefault(); signOut(auth); };
+        logoutBtn.onclick = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                loginBtn.style.display = 'none';
-                userInfo.style.display = 'block';
-                userNameDisp.innerText = user.displayName;
+                userInfo.innerText = `Hi, ${user.displayName}`;
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                todoSection.classList.remove('hidden');
                 loadTodos();
             } else {
                 currentUser = null;
-                loginBtn.style.display = 'block';
-                userInfo.style.display = 'none';
-                todoList.innerHTML = '<p style="text-align:center; font-size:0.8rem; opacity:0.5;">Please login to see tasks</p>';
+                userInfo.innerText = "Please login to see tasks";
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                todoSection.classList.add('hidden');
+                todoList.innerHTML = '';
             }
         });
 
-        // --- Database Logic ---
-        const loadTodos = () => {
-            const q = query(collection(db, "todos"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc"));
+        addBtn.onclick = async () => {
+            const text = todoInput.value.trim();
+            if (text && currentUser) {
+                try {
+                    await addDoc(collection(db, "todos"), {
+                        text: text,
+                        completed: false,
+                        createdAt: new Date(),
+                        uid: currentUser.uid,
+                        userName: currentUser.displayName
+                    });
+                    todoInput.value = '';
+                } catch (e) { alert("เกิดข้อผิดพลาดในการบันทึก"); }
+            }
+        };
+
+        function loadTodos() {
+            const q = query(collection(db, "todos"), orderBy("createdAt", "desc"));
             onSnapshot(q, (snapshot) => {
-                const todos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                render(todos);
+                todoList.innerHTML = '';
+                snapshot.forEach((docSnap) => {
+                    const task = docSnap.data();
+                    const id = docSnap.id;
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div style="display: flex; align-items: center; width: 100%; gap: 10px;">
+                            <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="window.toggleTask('${id}', ${task.completed})">
+                            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+                                <span class="${task.completed ? 'line-through' : ''}">${task.text}</span>
+                                <small class="user-name">👤 By: ${task.userName || 'Anonymous'}</small>
+                            </div>
+                            <button onclick="window.deleteTask('${id}')" class="delete-btn">Delete</button>
+                        </div>
+                    `;
+                    todoList.appendChild(li);
+                });
             });
-        };
-
-        const render = (todos) => {
-            todoList.innerHTML = '';
-            const filtered = todos.filter(t => {
-                if (currentFilter === 'active') return !t.completed;
-                if (currentFilter === 'completed') return t.completed;
-                return true;
-            });
-            filtered.forEach(t => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="window.toggleTask('${t.id}', ${t.completed})">
-                    <span class="todo-text ${t.completed ? 'completed' : ''}">${t.text}</span>
-                    <button class="del-btn" onclick="window.deleteTask('${t.id}')">&times;</button>
-                `;
-                todoList.appendChild(li);
-            });
-        };
-
-        window.addTask = async () => {
-            if (!input.value.trim() || !currentUser) return;
-            await addDoc(collection(db, "todos"), {
-                text: input.value,
-                completed: false,
-                uid: currentUser.uid,
-                createdAt: Date.now()
-            });
-            input.value = '';
-        };
+        }
 
         window.toggleTask = async (id, currentStatus) => {
             await updateDoc(doc(db, "todos", id), { completed: !currentStatus });
         };
 
         window.deleteTask = async (id) => {
-            await deleteDoc(doc(db, "todos", id));
+            if (confirm("คุณแน่ใจนะว่าจะลบงานนี้?")) {
+                try {
+                    await deleteDoc(doc(db, "todos", id));
+                } catch (e) {
+                    alert("⚠️ คุณไม่มีสิทธิ์ลบงานนี้ (เฉพาะ Admin เท่านั้น)");
+                }
+            }
         };
-
-        addBtn.onclick = window.addTask;
-        input.onkeypress = (e) => { if(e.key === 'Enter') window.addTask(); };
-
-        // --- Filter UI ---
-        document.getElementById('filter-all').onclick = function() { currentFilter = 'all'; updateFilterUI(this); };
-        document.getElementById('filter-active').onclick = function() { currentFilter = 'active'; updateFilterUI(this); };
-        document.getElementById('filter-completed').onclick = function() { currentFilter = 'completed'; updateFilterUI(this); };
-
-        function updateFilterUI(btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if(currentUser) loadTodos();
-        }
-
-        // --- Theme ---
-        const themeToggle = document.getElementById('theme-toggle');
-        let isDarkMode = localStorage.getItem('theme') === 'dark';
-        const applyTheme = () => {
-            document.body.classList.toggle('dark-mode', isDarkMode);
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        };
-        themeToggle.onclick = () => { isDarkMode = !isDarkMode; applyTheme(); };
-        applyTheme();
     </script>
 </body>
 </html>
