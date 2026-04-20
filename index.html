@@ -1,159 +1,120 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Tasks - Team Admin Version</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #1a1c2c; color: white; font-family: sans-serif; }
-        .card { background-color: #2a2d3e; border-radius: 20px; padding: 40px; width: 350px; }
-        input[type="text"] { background: transparent; border-bottom: 1px solid #444; width: 100%; padding: 10px; color: white; outline: none; }
-        .btn-add { background-color: #a388ee; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .todo-list li { display: flex; align-items: center; background: #35394f; margin-bottom: 10px; padding: 15px; border-radius: 12px; }
-        .delete-btn { color: #ff5e5e; font-size: 0.8em; margin-left: auto; cursor: pointer; border: 1px solid #ff5e5e; padding: 2px 8px; border-radius: 5px; }
-        .task-text { flex-grow: 1; }
-        .user-name { font-size: 0.7em; color: #aaa; margin-top: 2px; }
-        .line-through { text-decoration: line-through; color: #888; }
-    </style>
-</head>
-<body class="flex items-center justify-center min-h-screen">
+<script type="module">
+    // 1. นำเข้า Library (ห้ามย้ายที่)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    <div class="card shadow-2xl">
-        <h1 class="text-3xl font-bold text-center mb-6">My Tasks</h1>
+    // 2. การตั้งค่า Firebase (Config ของคุณเป๊ะๆ)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC_JN8AL9L0M0eulfbf8cXHvcZT0q0-Cug",
+        authDomain: "my-todo-app-d6eb1.firebaseapp.com",
+        projectId: "my-todo-app-d6eb1",
+        storageBucket: "my-todo-app-d6eb1.appspot.com",
+        messagingSenderId: "172806062786",
+        appId: "1:172806062786:web:6e326c71c4c11f7c756285"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+
+    // 3. ระบบเช็คสถานะและจัดการ Browser (ตามสั่ง: วางไว้บรรทัดแรกของ onAuthStateChanged)
+    onAuthStateChanged(auth, (user) => {
+        // --- ส่วนป้องกันการเปิดในแอป (เช็คทันทีที่ฟังก์ชันเริ่ม) ---
+        const isLine = navigator.userAgent.includes('Line');
+        const isFB = /FBAN|FBAV/i.test(navigator.userAgent);
         
-        <div id="auth-section" class="text-center mb-6">
-            <p id="user-info" class="mb-2 text-sm text-gray-400">Loading...</p>
-            <button id="loginBtn" class="btn-add hidden">Login with Google</button>
-            <button id="logoutBtn" class="hidden text-red-400 text-xs underline mt-2">Logout</button>
-        </div>
-
-        <div id="todo-section" class="hidden">
-            <div class="flex gap-2 mb-6">
-                <input type="text" id="todoInput" placeholder="เพิ่มสิ่งที่ต้องทำ...">
-                <button id="addBtn" class="btn-add">เพิ่ม</button>
-            </div>
-            <ul id="todoList" class="todo-list"></ul>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-// --- ส่วนป้องกันการเปิดในแอป (Anti-In-App Browser) ---
-if (navigator.userAgent.includes('Line') || /FBAN|FBAV/i.test(navigator.userAgent)) {
-    const isLine = navigator.userAgent.includes('Line');
-    if (isLine && !window.location.search.includes('openExternalBrowser=1')) {
-        window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'openExternalBrowser=1';
-    } else {
-        document.body.insertAdjacentHTML('afterbegin', `
-            <div style="background: #ff4444; color: white; text-align: center; padding: 10px; font-size: 14px; position: sticky; top: 0; z-index: 9999;">
-                ⚠️ เพื่อให้ Login ได้ กรุณากดปุ่ม <b style="font-size:18px">⋮</b> หรือ <b style="font-size:18px">...</b> แล้วเลือก "เปิดด้วยเบราว์เซอร์อื่น" [Open in Browser]
-            </div>
-        `);
-    }
-// --- จบส่วนป้องกัน ---
-        const firebaseConfig = {
-  apiKey: "AIzaSyC_JN8AL9L0M0eulfbf8cXHvcZT0q0-Cug",
-  authDomain: "my-todo-app-d6eb1.firebaseapp.com",
-  projectId: "my-todo-app-d6eb1",
-  storageBucket: "my-todo-app-d6eb1.firebasestorage.app",
-  messagingSenderId: "172806062786",
-  appId: "1:172806062786:web:efad1fef88a5ef2717f15b"
-};
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const provider = new GoogleAuthProvider();
-
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const userInfo = document.getElementById('user-info');
-        const todoSection = document.getElementById('todo-section');
-        const todoInput = document.getElementById('todoInput');
-        const addBtn = document.getElementById('addBtn');
-        const todoList = document.getElementById('todoList');
-
-        let currentUser = null;
-
-        loginBtn.onclick = () => signInWithPopup(auth, provider);
-        logoutBtn.onclick = () => signOut(auth);
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                userInfo.innerText = `Hi, ${user.displayName}`;
-                loginBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                todoSection.classList.remove('hidden');
-                loadTodos();
-            } else {
-                currentUser = null;
-                userInfo.innerText = "Please login to see tasks";
-                loginBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                todoSection.classList.add('hidden');
-                todoList.innerHTML = '';
+        if (isLine && !window.location.search.includes('openExternalBrowser=1')) {
+            window.location.href = window.location.href + (window.location.href.includes('?') ? '&' : '?') + 'openExternalBrowser=1';
+            return; 
+        } else if (isFB || isLine) {
+            if (!document.getElementById('anti-in-app-banner')) {
+                document.body.insertAdjacentHTML('afterbegin', `
+                    <div id="anti-in-app-banner" style="background: #ff4444; color: white; text-align: center; padding: 10px; font-size: 14px; position: sticky; top: 0; z-index: 9999;">
+                        ⚠️ เพื่อให้ Login ได้ กรุณากดปุ่ม <b>⋮</b> หรือ <b>...</b> แล้วเลือก "เปิดด้วยเบราว์เซอร์อื่น" [Open in Browser]
+                    </div>
+                `);
             }
-        });
-
-        addBtn.onclick = async () => {
-            const text = todoInput.value.trim();
-            if (text && currentUser) {
-                try {
-                    await addDoc(collection(db, "todos"), {
-                        text: text,
-                        completed: false,
-                        createdAt: new Date(),
-                        uid: currentUser.uid,
-                        userName: currentUser.displayName
-                    });
-                    todoInput.value = '';
-                } catch (e) { alert("เกิดข้อผิดพลาดในการบันทึก"); }
-            }
-        };
-
-        function loadTodos() {
-            const q = query(collection(db, "todos"), orderBy("createdAt", "desc"));
-            onSnapshot(q, (snapshot) => {
-                todoList.innerHTML = '';
-                snapshot.forEach((docSnap) => {
-                    const task = docSnap.data();
-                    const id = docSnap.id;
-                    const li = document.createElement('li');
-                    li.className = 'flex items-center justify-between bg-[#35394f] mb-3 p-4 rounded-xl shadow-sm';
-                    li.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="window.toggleTask('${id}', ${task.completed})" class="w-5 h-5 accent-[#a388ee]">
-                            <span class="${task.completed ? 'line-through text-gray-500' : 'text-white'} text-lg">${task.text}</span>
-                            <span class="text-[10px] text-gray-500 ml-2">(${task.userName || 'Anonymous'})</span>
-                        </div>
-                        <button onclick="window.deleteTask('${id}')" class="text-gray-500 hover:text-red-500 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    `;
-                    todoList.appendChild(li);
-                });
-            });
         }
+        // --- จบส่วนป้องกัน ---
 
-        window.toggleTask = async (id, currentStatus) => {
-            await updateDoc(doc(db, "todos", id), { completed: !currentStatus });
-        };
+        if (user) {
+            document.getElementById('user-info').textContent = `Logged in as: ${user.displayName}`;
+            document.getElementById('loginBtn').classList.add('hidden');
+            document.getElementById('logoutBtn').classList.remove('hidden');
+            document.getElementById('todo-section').classList.remove('hidden');
+            window.currentUser = user;
+            loadTasks();
+        } else {
+            document.getElementById('user-info').textContent = "Please login to see your tasks";
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('logoutBtn').classList.add('hidden');
+            document.getElementById('todo-section').classList.add('hidden');
+            window.currentUser = null;
+        }
+    });
 
-        window.deleteTask = async (id) => {
-            if (confirm("คุณแน่ใจนะว่าจะลบงานนี้?")) {
-                try {
-                    await deleteDoc(doc(db, "todos", id));
-                } catch (e) {
-                    alert("⚠️ คุณไม่มีสิทธิ์ลบงานนี้ (เฉพาะ Admin เท่านั้น)");
-                }
-            }
-        };
-    </script>
-</body>
-</html>
+    // 4. ฟังก์ชันการทำงานพื้นฐาน
+    window.login = async () => {
+        try { await signInWithPopup(auth, provider); } 
+        catch (error) { console.error("Login failed:", error); alert("เข้าสู่ระบบไม่สำเร็จ: " + error.message); }
+    };
+
+    window.logout = () => signOut(auth);
+
+    window.addTask = async () => {
+        const input = document.getElementById('todoInput');
+        if (input.value.trim() && window.currentUser) {
+            await addDoc(collection(db, "todos"), {
+                text: input.value,
+                completed: false,
+                createdAt: Date.now(),
+                userId: window.currentUser.uid,
+                userName: window.currentUser.displayName
+            });
+            input.value = '';
+        }
+    };
+
+    function loadTasks() {
+        const q = query(collection(db, "todos"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const todoList = document.getElementById('todoList');
+            todoList.innerHTML = '';
+            snapshot.forEach((docSnap) => {
+                const task = docSnap.data();
+                const id = docSnap.id;
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between bg-[#35394f] mb-3 p-4 rounded-xl shadow-sm';
+                li.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="window.toggleTask('${id}', ${task.completed})" class="w-5 h-5 accent-[#a388ee]">
+                        <span class="${task.completed ? 'line-through text-gray-500' : 'text-white'} text-lg">${task.text}</span>
+                        <span class="text-[10px] text-gray-500 ml-2">(${task.userName || 'Anonymous'})</span>
+                    </div>
+                    <button onclick="window.deleteTask('${id}')" class="text-gray-500 hover:text-red-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                `;
+                todoList.appendChild(li);
+            });
+        });
+    }
+
+    window.toggleTask = async (id, currentStatus) => {
+        await updateDoc(doc(db, "todos", id), { completed: !currentStatus });
+    };
+
+    window.deleteTask = async (id) => {
+        if (confirm("จะลบรายการนี้ใช่ไหม?")) { await deleteDoc(doc(db, "todos", id)); }
+    };
+
+    // เชื่อมต่อปุ่ม
+    document.getElementById('loginBtn').onclick = window.login;
+    document.getElementById('logoutBtn').onclick = window.logout;
+    document.getElementById('addBtn').onclick = window.addTask;
+</script>
